@@ -8,14 +8,18 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gotobootcamp.games.model.Game
 import com.gotobootcamp.games.ui.theme.GamesTheme
+import com.gotobootcamp.games.viewModel.GameUiState
 import com.gotobootcamp.games.viewModel.GameViewModel
 
 class GameActivity : ComponentActivity() {
@@ -25,11 +29,15 @@ class GameActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val games = viewModel.getGames()
-
         setContent {
             GamesTheme {
-                GameUI(games = games)
+                val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+                when (val current = state) {
+                    is GameUiState.Loading -> CircularProgressIndicator(modifier = Modifier.padding(50.dp))
+                    is GameUiState.Success -> GameUI(games = current.games)
+                    is GameUiState.Error -> Text(text = current.message, fontSize = 20.sp, modifier = Modifier.padding(50.dp))
+                }
             }
         }
     }
