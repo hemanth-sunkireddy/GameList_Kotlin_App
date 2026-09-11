@@ -1,11 +1,14 @@
 package com.gotobootcamp.games.view
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,8 +25,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -56,6 +63,9 @@ class GameActivity : ComponentActivity() {
     }
 }
 
+private fun String?.isNullOrEmptyOrBlank(): Boolean = this.isNullOrBlank()
+
+
 @Composable
 fun GameUI(games: List<Game>) {
     LazyColumn(
@@ -78,6 +88,8 @@ fun GameUI(games: List<Game>) {
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun GameItemCard(game: Game) {
+    val context = LocalContext.current
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -112,6 +124,8 @@ fun GameItemCard(game: Game) {
             Text(
                 text = game.shortDescription ?: "",
                 fontSize = 13.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
@@ -121,7 +135,6 @@ fun GameItemCard(game: Game) {
                 Text(
                     text = "Genre: ${game.genre ?: "N/A"}",
                     fontSize = 11.sp,
-                    fontWeight = FontWeight.Medium
                 )
                 Text(
                     text = "  •  Platform: ${game.platform ?: "N/A"}",
@@ -133,10 +146,66 @@ fun GameItemCard(game: Game) {
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
+                text = "Developer: ${game.developer ?: "Unknown"}",
+                fontSize = 11.sp,
+                color = MaterialTheme.colorScheme.outline
+            )
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            Text(
+                text = "Release Date: ${game.releaseDate ?: "N/A"}",
+                fontSize = 11.sp,
+                color = MaterialTheme.colorScheme.outline
+            )
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            Text(
                 text = "Publisher: ${game.publisher ?: "Unknown"}",
                 fontSize = 11.sp,
                 color = MaterialTheme.colorScheme.outline
             )
+
+            if (!game.gameUrl.isNullOrEmptyOrBlank() || !game.profileUrl.isNullOrEmptyOrBlank()) {
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    if (!game.gameUrl.isNullOrEmptyOrBlank()) {
+                        Text(
+                            text = "Game URL",
+                            fontSize = 11.sp,
+                            color = Color.Blue,
+                            textDecoration = TextDecoration.Underline,
+                            modifier = Modifier.clickable {
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(game.gameUrl))
+                                context.startActivity(intent)
+                            }
+                        )
+                    }
+
+                    if (!game.gameUrl.isNullOrEmptyOrBlank() && !game.profileUrl.isNullOrBlank()) {
+                        Text(
+                            text = "  •  ",
+                            fontSize = 11.sp,
+                            color = MaterialTheme.colorScheme.outline
+                        )
+                    }
+
+                    if (!game.profileUrl.isNullOrEmptyOrBlank()) {
+                        Text(
+                            text = "Profile URL",
+                            fontSize = 11.sp,
+                            color = Color.Blue,
+                            textDecoration = TextDecoration.Underline,
+                            modifier = Modifier.clickable {
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(game.profileUrl))
+                                context.startActivity(intent)
+                            }
+                        )
+                    }
+                }
+            }
         }
     }
 }
