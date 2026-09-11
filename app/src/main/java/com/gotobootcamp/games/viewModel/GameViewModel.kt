@@ -21,7 +21,7 @@ sealed interface GameUiState {
 
 class GameViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository = GameRepository(application.applicationContext)
+    private val repository = GameRepository()
     private val _uiState = MutableStateFlow<GameUiState>(GameUiState.Loading)
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
 

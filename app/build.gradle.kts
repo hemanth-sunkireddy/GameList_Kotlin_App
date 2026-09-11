@@ -53,4 +53,6 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     implementation("com.google.code.gson:gson:2.14.0")
     implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
 }

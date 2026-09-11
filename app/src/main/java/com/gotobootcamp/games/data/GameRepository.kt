@@ -3,23 +3,23 @@ package com.gotobootcamp.games.data
 import android.content.Context
 import android.util.Log
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.gotobootcamp.games.model.Game
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
-class GameRepository(private val context: Context) {
+class GameRepository() {
 
-    fun getGames(): List<Game> {
-        val assetManager = context.assets
+    private val apiService: GameApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl("https://www.mmobomb.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(GameApiService::class.java)
+    }
 
-        val inputStream = assetManager.open("games.json")
-
-        val jsonString = inputStream.bufferedReader().use { it.readText() }
-        Log.d("GameRepository", jsonString)
-
-        val gson = Gson()
-        val typeToken = object : TypeToken<List<Game>>() {}.type
-        val gamesList: List<Game> = gson.fromJson(jsonString, typeToken)
-
+    suspend fun getGames(): List<Game> {
+        val gamesList = apiService.getGames()
+        Log.d("GameRepository", Gson().toJson(gamesList))
         return gamesList
     }
 }
