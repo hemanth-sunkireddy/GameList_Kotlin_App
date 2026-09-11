@@ -4,24 +4,29 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.gotobootcamp.games.data.GameRepository
 import com.gotobootcamp.games.model.Game
 import com.gotobootcamp.games.ui.theme.GamesTheme
+import com.gotobootcamp.games.viewModel.GameViewModel
 
 class GameActivity : ComponentActivity() {
+    private val viewModel: GameViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val repository = GameRepository(this)
-        val games = repository.getGames()
+        val games = viewModel.getGames()
+
         setContent {
             GamesTheme {
                 GameUI(games = games)
@@ -32,11 +37,24 @@ class GameActivity : ComponentActivity() {
 
 @Composable
 fun GameUI(games: List<Game>) {
-    Text(
-        text = "Total games: ${games.size}",
-        modifier = Modifier.padding(50.dp),
-        fontSize = 30.sp
-    )
+    LazyColumn(
+        modifier = Modifier.padding(top = 50.dp, start = 16.dp, end = 16.dp)
+    ) {
+        item {
+            Text(
+                text = "Games",
+                fontSize = 30.sp,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+        }
+        items(games) { game ->
+            Text(
+                text = "Game ID: ${game.id}",
+                fontSize = 20.sp,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+        }
+    }
 }
 
 @Preview(showBackground = true)
