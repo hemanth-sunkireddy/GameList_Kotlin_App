@@ -43,6 +43,35 @@ fun GameUI(games: List<Game>) {
 @Composable
 fun GamesPreview() {
     GamesTheme {
-        GameUI(games = emptyList())
+        val mockGames = listOf(
+            Game(
+                id = "1",
+                title = "Cyberpunk 2077",
+                thumbnail = "",
+                shortDescription = "Open-world RPG",
+                gameUrl = "",
+                genre = "RPG",
+                platform = "PC",
+                publisher = "CD Projekt",
+                developer = "CD Projekt Red",
+                releaseDate = "2020-12-10",
+                profileUrl = ""
+            ),
+            Game(
+                id = "2",
+                title = "Apex Legends",
+                thumbnail = "",
+                shortDescription = "Battle Royale",
+                gameUrl = "",
+                genre = "Shooter",
+                platform = "PC",
+                publisher = "EA",
+                developer = "Respawn",
+                releaseDate = "2019-02-04",
+                profileUrl = ""
+            )
+        )
+
+        GameUI(games = mockGames)
     }
 }

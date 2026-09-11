@@ -1,13 +1,28 @@
-{
-  "id": 1238,
-  "title": "World of Tanks: HEAT",
-  "thumbnail": "https://www.mmobomb.com/g/1238/thumbnail.jpg",
-  "short_description": "A free-to-play PvP action game.",
-  "game_url": "https://www.mmobomb.com/open/world-of-tanks-heat",
-  "genre": "Shooter",
-  "platform": "PC (Windows)",
-  "publisher": "Wargaming Group Limited",
-  "developer": "Wargaming Group Limited",
-  "release_date": "2026-05-26",
-  "profile_url": "https://www.mmobomb.com/world-of-tanks-heat"
-}
+[
+  {
+    "id": 1238,
+    "title": "World of Tanks: HEAT",
+    "thumbnail": "https://www.mmobomb.com/g/1238/thumbnail.jpg",
+    "short_description": "A free-to-play PvP action game.",
+    "game_url": "https://www.mmobomb.com/open/world-of-tanks-heat",
+    "genre": "Shooter",
+    "platform": "PC (Windows)",
+    "publisher": "Wargaming Group Limited",
+    "developer": "Wargaming Group Limited",
+    "release_date": "2026-05-26",
+    "profile_url": "https://www.mmobomb.com/world-of-tanks-heat"
+  },
+  {
+    "id": 1235,
+    "title": "Neverness to Everness",
+    "thumbnail": "https://www.mmobomb.com/g/1235/thumbnail.jpg",
+    "short_description": "A free-to-play open-world supernatural urban adventure game with GTA vibes.",
+    "game_url": "https://www.mmobomb.com/open/nte",
+    "genre": "RPG",
+    "platform": "PC (Windows)",
+    "publisher": "Perfect World Entertainment",
+    "developer": "Hotta Studio",
+    "release_date": "2026-04-29",
+    "profile_url": "https://www.mmobomb.com/nte"
+  }
+  ]
