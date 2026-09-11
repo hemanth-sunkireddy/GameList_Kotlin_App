@@ -22,11 +22,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import com.gotobootcamp.games.model.Game
 import com.gotobootcamp.games.ui.theme.GamesTheme
 import com.gotobootcamp.games.viewModel.GameUiState
@@ -72,54 +75,69 @@ fun GameUI(games: List<Game>) {
     }
 }
 
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun GameItemCard(game: Game) {
-    Column(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 6.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(16.dp)
+            .padding(12.dp)
     ) {
-        Text(
-            text = game.title ?: "Untitled",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold
+        GlideImage(
+            model = game.thumbnail ?: "",
+            contentDescription = game.title ?: "Game Thumbnail",
+            modifier = Modifier
+                .fillMaxWidth(0.25f)
+                .height(90.dp)
+                .clip(RoundedCornerShape(8.dp)),
+            contentScale = ContentScale.Crop
         )
 
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.padding(start = 12.dp))
 
-        Text(
-            text = game.shortDescription ?: "",
-            fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth()
+        Column(
+            modifier = Modifier.weight(1f)
         ) {
             Text(
-                text = "Genre: ${game.genre ?: "N/A"}",
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Medium
+                text = game.title ?: "Untitled",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
             )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
             Text(
-                text = "  •  Platform: ${game.platform ?: "N/A"}",
-                fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.secondary
+                text = game.shortDescription ?: "",
+                fontSize = 13.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = "Genre: ${game.genre ?: "N/A"}",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Medium
+                )
+                Text(
+                    text = "  •  Platform: ${game.platform ?: "N/A"}",
+                    fontSize = 11.sp,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = "Publisher: ${game.publisher ?: "Unknown"}",
+                fontSize = 11.sp,
+                color = MaterialTheme.colorScheme.outline
             )
         }
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        Text(
-            text = "Publisher: ${game.publisher ?: "Unknown"}",
-            fontSize = 12.sp,
-            color = MaterialTheme.colorScheme.outline
-        )
     }
 }
 
