@@ -3,12 +3,15 @@ package com.gotobootcamp.games.view
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
+import com.gotobootcamp.games.R
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,15 +22,20 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -39,25 +47,41 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.gotobootcamp.games.model.Game
 import com.gotobootcamp.games.ui.theme.GamesTheme
+import com.gotobootcamp.games.viewModel.GameUiEvent
 import com.gotobootcamp.games.viewModel.GameUiState
 import com.gotobootcamp.games.viewModel.GameViewModel
 
 class GameActivity : ComponentActivity() {
     private val viewModel: GameViewModel by viewModels()
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+
         setContent {
             GamesTheme {
                 val state by viewModel.uiState.collectAsStateWithLifecycle()
+                val savedIds by viewModel.savedGameIds.collectAsStateWithLifecycle()
+                val context = LocalContext.current
+                LaunchedEffect(Unit) {
+                    viewModel.uiEvent.collect { event ->
+                        when (event) {
+                            is GameUiEvent.ShowToast -> {
+                                Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                }
 
                 when (val current = state) {
                     is GameUiState.Loading -> CircularProgressIndicator(modifier = Modifier.padding(50.dp))
-                    is GameUiState.Success -> GameUI(games = current.games)
+                    is GameUiState.Success -> GameUI(games = current.games, savedIds, onBookmarkClick = { gameId -> viewModel.onBookmarkClicked(gameId)})
                     is GameUiState.Error -> Text(text = current.message, fontSize = 20.sp, modifier = Modifier.padding(50.dp))
+                    is GameUiState.Toast -> Toast.makeText(this, current.message, Toast.LENGTH_SHORT).show()
                 }
+
             }
         }
     }
@@ -67,7 +91,11 @@ private fun String?.isNullOrEmptyOrBlank(): Boolean = this.isNullOrBlank()
 
 
 @Composable
-fun GameUI(games: List<Game>) {
+fun GameUI(
+    games: List<Game>,
+    savedIds: Set<String>,
+    onBookmarkClick: (String) -> Unit
+) {
     LazyColumn(
         modifier = Modifier.padding(top = 50.dp, start = 16.dp, end = 16.dp)
     ) {
@@ -80,14 +108,20 @@ fun GameUI(games: List<Game>) {
             )
         }
         items(games) { game ->
-            GameItemCard(game = game)
+            GameItemCard(
+                game = game,
+                isSaved = savedIds.contains(game.id),
+                onBookmarkClick = { onBookmarkClick(game.id) }
+            )
         }
     }
 }
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun GameItemCard(game: Game) {
+fun GameItemCard(game: Game,
+                 isSaved: Boolean,
+                 onBookmarkClick: () -> Unit) {
     val context = LocalContext.current
 
     Row(
@@ -153,11 +187,25 @@ fun GameItemCard(game: Game) {
 
             Spacer(modifier = Modifier.height(2.dp))
 
-            Text(
-                text = "Release Date: ${game.releaseDate ?: "N/A"}",
-                fontSize = 11.sp,
-                color = MaterialTheme.colorScheme.outline
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Release Date: ${game.releaseDate ?: "N/A"}",
+                    fontSize = 11.sp,
+                    color = MaterialTheme.colorScheme.outline
+                )
+
+                IconButton(onClick = onBookmarkClick) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.outline_award_star_24),
+                        contentDescription = "Favourite Game",
+                        tint = if (isSaved) Color(0xFFFFD700) else MaterialTheme.colorScheme.outline
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(2.dp))
 
@@ -243,6 +291,6 @@ fun GamesPreview() {
             )
         )
 
-        GameUI(games = mockGames)
+        GameUI(games = mockGames, savedIds = emptySet(), onBookmarkClick = {})
     }
 }

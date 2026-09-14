@@ -2,7 +2,7 @@ package com.gotobootcamp.games.model
 import com.google.gson.annotations.SerializedName
 
 data class Game(
-    val id: String? = "",
+    val id: String = "",
     val title: String? = "",
     val thumbnail: String? = "",
     @SerializedName("short_description") val shortDescription: String? = "",
