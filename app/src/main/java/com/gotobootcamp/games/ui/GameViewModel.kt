@@ -43,7 +43,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptySet()
         )
-    private val repository = GameRepository(application.getString(R.string.base_url))
+    private val repository = GameRepository(application.applicationContext, application.getString(R.string.base_url))
     private val _uiState = MutableStateFlow<GameUiState>(GameUiState.Loading)
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
     private val _uiEvent = MutableSharedFlow<GameUiEvent>()
