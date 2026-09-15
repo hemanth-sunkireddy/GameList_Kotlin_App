@@ -16,19 +16,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 sealed interface GameUiState {
     object Loading : GameUiState
-
-    data class Toast(val message: String): GameUiState
-    data class Success(val games: List<Game>) : GameUiState
+    data class Success(val games: List<Game>, val savedGameIds: Set<String>) : GameUiState
     data class Error(val message: String) : GameUiState
 }
 
@@ -48,18 +46,33 @@ class GameViewModel @JvmOverloads constructor(
     ),
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : AndroidViewModel(application) {
-    private val TAG = application.getString(R.string.log_tag_viewmodel)
 
+    private val logTag = application.getString(R.string.log_tag_viewmodel)
     private val dataStore = GameDataStore(application)
 
-    val savedGameIds: StateFlow<Set<String>> = dataStore.savedGameIds
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptySet()
-        )
-    private val _uiState = MutableStateFlow<GameUiState>(GameUiState.Loading)
-    val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
+    private val gamesResult = MutableStateFlow<Result<List<Game>>?>(null)
+
+    val uiState: StateFlow<GameUiState> = combine(
+        gamesResult,
+        dataStore.savedGameIds
+    ) { result, savedIds ->
+        when {
+            result == null -> GameUiState.Loading
+            result.isSuccess -> GameUiState.Success(
+                games = result.getOrDefault(emptyList()),
+                savedGameIds = savedIds
+            )
+            else -> GameUiState.Error(
+                result.exceptionOrNull()?.message
+                    ?: application.getString(R.string.error_failed_to_load)
+            )
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = GameUiState.Loading
+    )
+
     private val _uiEvent = MutableSharedFlow<GameUiEvent>()
     val uiEvent: SharedFlow<GameUiEvent> = _uiEvent.asSharedFlow()
 
@@ -69,19 +82,18 @@ class GameViewModel @JvmOverloads constructor(
 
     fun loadGames() {
         viewModelScope.launch {
-            _uiState.value = GameUiState.Loading
-            Log.d(TAG, "Before withContext - Running on thread: ${Thread.currentThread().name}")
+            gamesResult.value = null
+            Log.d(logTag, "Before withContext - Running on thread: ${Thread.currentThread().name}")
             try {
                 val games = withContext(ioDispatcher) {
-                    Log.d(TAG, "Inside withContext - Fetching games on thread: ${Thread.currentThread().name}")
+                    Log.d(logTag, "Inside withContext - Fetching games on thread: ${Thread.currentThread().name}")
                     repository.getGames()
                 }
-                Log.d(TAG, "After withContext - Resumed on thread: ${Thread.currentThread().name}")
-                _uiState.value = GameUiState.Success(games)
+                Log.d(logTag, "After withContext - Resumed on thread: ${Thread.currentThread().name}")
+                gamesResult.value = Result.success(games)
                 _uiEvent.emit(GameUiEvent.ShowToast(getApplication<Application>().getString(R.string.toast_games_loaded)))
             } catch (e: Exception) {
-                _uiState.value = GameUiState.Error(e.message ?: getApplication<Application>().getString(
-                    R.string.error_failed_to_load))
+                gamesResult.value = Result.failure(e)
             }
         }
     }

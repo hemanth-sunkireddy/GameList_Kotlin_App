@@ -59,8 +59,8 @@ class GameActivity : ComponentActivity() {
         setContent {
             GamesTheme {
                 val state by viewModel.uiState.collectAsStateWithLifecycle()
-                val savedIds by viewModel.savedGameIds.collectAsStateWithLifecycle()
                 val context = LocalContext.current
+
                 LaunchedEffect(Unit) {
                     viewModel.uiEvent.collect { event ->
                         when (event) {
@@ -72,19 +72,26 @@ class GameActivity : ComponentActivity() {
                 }
 
                 when (val current = state) {
-                    is GameUiState.Loading -> CircularProgressIndicator(modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large)))
-                    is GameUiState.Success -> GameUI(games = current.games, savedIds, onBookmarkClick = { gameId -> viewModel.onBookmarkClicked(gameId)})
-                    is GameUiState.Error -> Text(text = current.message, fontSize = dimensionResource(id = R.dimen.text_size_error).value.sp, modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large)))
-                    is GameUiState.Toast -> Toast.makeText(this, current.message, Toast.LENGTH_SHORT).show()
+                    is GameUiState.Loading -> CircularProgressIndicator(
+                        modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large))
+                    )
+                    is GameUiState.Success -> GameUI(
+                        games = current.games,
+                        savedIds = current.savedGameIds,
+                        onBookmarkClick = { gameId -> viewModel.onBookmarkClicked(gameId) }
+                    )
+                    is GameUiState.Error -> Text(
+                        text = current.message,
+                        fontSize = dimensionResource(id = R.dimen.text_size_error).value.sp,
+                        modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large))
+                    )
                 }
-
             }
         }
     }
 }
 
 private fun String?.isNullOrEmptyOrBlank(): Boolean = this.isNullOrBlank()
-
 
 @Composable
 fun GameUI(
@@ -93,7 +100,11 @@ fun GameUI(
     onBookmarkClick: (String) -> Unit
 ) {
     LazyColumn(
-        modifier = Modifier.padding(top = dimensionResource(id = R.dimen.padding_large), start = dimensionResource(id = R.dimen.padding_medium), end = dimensionResource(id = R.dimen.padding_medium))
+        modifier = Modifier.padding(
+            top = dimensionResource(id = R.dimen.padding_large),
+            start = dimensionResource(id = R.dimen.padding_medium),
+            end = dimensionResource(id = R.dimen.padding_medium)
+        )
     ) {
         item {
             Text(
@@ -115,9 +126,11 @@ fun GameUI(
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun GameItemCard(game: Game,
-                 isSaved: Boolean,
-                 onBookmarkClick: () -> Unit) {
+fun GameItemCard(
+    game: Game,
+    isSaved: Boolean,
+    onBookmarkClick: () -> Unit
+) {
     val context = LocalContext.current
 
     Row(
