@@ -7,7 +7,11 @@ import androidx.lifecycle.viewModelScope
 import com.gotobootcamp.games.R
 import com.gotobootcamp.games.data.GameDataStore
 import com.gotobootcamp.games.data.GameRepository
+import com.gotobootcamp.games.data.GameApiService
 import com.gotobootcamp.games.model.Game
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,7 +36,18 @@ sealed interface GameUiEvent {
     data class ShowToast(val message: String) : GameUiEvent
 }
 
-class GameViewModel(application: Application) : AndroidViewModel(application) {
+class GameViewModel @JvmOverloads constructor(
+    application: Application,
+    private val repository: GameRepository = GameRepository(
+        apiService = Retrofit.Builder()
+            .baseUrl(application.getString(R.string.base_url))
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(GameApiService::class.java),
+        cacheDir = application.cacheDir
+    ),
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+) : AndroidViewModel(application) {
     private val TAG = application.getString(R.string.log_tag_viewmodel)
 
     private val dataStore = GameDataStore(application)
@@ -43,7 +58,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptySet()
         )
-    private val repository = GameRepository(application.applicationContext, application.getString(R.string.base_url))
     private val _uiState = MutableStateFlow<GameUiState>(GameUiState.Loading)
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
     private val _uiEvent = MutableSharedFlow<GameUiEvent>()
@@ -58,8 +72,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             _uiState.value = GameUiState.Loading
             Log.d(TAG, "Before withContext - Running on thread: ${Thread.currentThread().name}")
             try {
-                val games = withContext(Dispatchers.IO) {
-                    Log.d(TAG, "Inside withContext(Dispatchers.IO) - Fetching games on thread: ${Thread.currentThread().name}")
+                val games = withContext(ioDispatcher) {
+                    Log.d(TAG, "Inside withContext - Fetching games on thread: ${Thread.currentThread().name}")
                     repository.getGames()
                 }
                 Log.d(TAG, "After withContext - Resumed on thread: ${Thread.currentThread().name}")

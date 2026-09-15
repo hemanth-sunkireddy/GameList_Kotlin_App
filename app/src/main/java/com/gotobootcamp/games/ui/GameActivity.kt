@@ -52,11 +52,9 @@ import com.gotobootcamp.games.ui.theme.GamesTheme
 class GameActivity : ComponentActivity() {
     private val viewModel: GameViewModel by viewModels()
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
 
         setContent {
             GamesTheme {
