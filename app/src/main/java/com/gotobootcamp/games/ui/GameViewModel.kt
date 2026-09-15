@@ -1,9 +1,10 @@
-package com.gotobootcamp.games.viewModel
+package com.gotobootcamp.games.ui
 
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.gotobootcamp.games.R
 import com.gotobootcamp.games.data.GameDataStore
 import com.gotobootcamp.games.data.GameRepository
 import com.gotobootcamp.games.model.Game
@@ -32,9 +33,7 @@ sealed interface GameUiEvent {
 }
 
 class GameViewModel(application: Application) : AndroidViewModel(application) {
-    private companion object {
-        private const val TAG = "GameViewModelThread"
-    }
+    private val TAG = application.getString(R.string.log_tag_viewmodel)
 
     private val dataStore = GameDataStore(application)
 
@@ -44,7 +43,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptySet()
         )
-    private val repository = GameRepository()
+    private val repository = GameRepository(application.getString(R.string.base_url))
     private val _uiState = MutableStateFlow<GameUiState>(GameUiState.Loading)
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
     private val _uiEvent = MutableSharedFlow<GameUiEvent>()
@@ -65,9 +64,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 }
                 Log.d(TAG, "After withContext - Resumed on thread: ${Thread.currentThread().name}")
                 _uiState.value = GameUiState.Success(games)
-                _uiEvent.emit(GameUiEvent.ShowToast("Games loaded successfully"))
+                _uiEvent.emit(GameUiEvent.ShowToast(getApplication<Application>().getString(R.string.toast_games_loaded)))
             } catch (e: Exception) {
-                _uiState.value = GameUiState.Error(e.message ?: "Failed to load games")
+                _uiState.value = GameUiState.Error(e.message ?: getApplication<Application>().getString(
+                    R.string.error_failed_to_load))
             }
         }
     }

@@ -1,4 +1,4 @@
-package com.gotobootcamp.games.view
+package com.gotobootcamp.games.ui
 
 import android.content.Intent
 import android.net.Uri
@@ -32,24 +32,22 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.gotobootcamp.games.model.Game
 import com.gotobootcamp.games.ui.theme.GamesTheme
-import com.gotobootcamp.games.viewModel.GameUiEvent
-import com.gotobootcamp.games.viewModel.GameUiState
-import com.gotobootcamp.games.viewModel.GameViewModel
 
 class GameActivity : ComponentActivity() {
     private val viewModel: GameViewModel by viewModels()
@@ -76,9 +74,9 @@ class GameActivity : ComponentActivity() {
                 }
 
                 when (val current = state) {
-                    is GameUiState.Loading -> CircularProgressIndicator(modifier = Modifier.padding(50.dp))
+                    is GameUiState.Loading -> CircularProgressIndicator(modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large)))
                     is GameUiState.Success -> GameUI(games = current.games, savedIds, onBookmarkClick = { gameId -> viewModel.onBookmarkClicked(gameId)})
-                    is GameUiState.Error -> Text(text = current.message, fontSize = 20.sp, modifier = Modifier.padding(50.dp))
+                    is GameUiState.Error -> Text(text = current.message, fontSize = dimensionResource(id = R.dimen.text_size_error).value.sp, modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large)))
                     is GameUiState.Toast -> Toast.makeText(this, current.message, Toast.LENGTH_SHORT).show()
                 }
 
@@ -97,14 +95,14 @@ fun GameUI(
     onBookmarkClick: (String) -> Unit
 ) {
     LazyColumn(
-        modifier = Modifier.padding(top = 50.dp, start = 16.dp, end = 16.dp)
+        modifier = Modifier.padding(top = dimensionResource(id = R.dimen.padding_large), start = dimensionResource(id = R.dimen.padding_medium), end = dimensionResource(id = R.dimen.padding_medium))
     ) {
         item {
             Text(
-                text = "Games",
-                fontSize = 30.sp,
+                text = stringResource(id = R.string.label_games),
+                fontSize = dimensionResource(id = R.dimen.text_size_header).value.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier.padding(bottom = dimensionResource(id = R.dimen.padding_medium))
             )
         }
         items(games) { game ->
@@ -127,65 +125,65 @@ fun GameItemCard(game: Game,
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 6.dp)
-            .clip(RoundedCornerShape(12.dp))
+            .padding(vertical = dimensionResource(id = R.dimen.padding_extra_small))
+            .clip(RoundedCornerShape(dimensionResource(id = R.dimen.corner_radius_medium)))
             .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(12.dp)
+            .padding(dimensionResource(id = R.dimen.padding_small))
     ) {
         GlideImage(
             model = game.thumbnail ?: "",
-            contentDescription = game.title ?: "Game Thumbnail",
+            contentDescription = game.title ?: stringResource(id = R.string.desc_game_thumbnail),
             modifier = Modifier
                 .fillMaxWidth(0.25f)
-                .height(90.dp)
-                .clip(RoundedCornerShape(8.dp)),
+                .height(dimensionResource(id = R.dimen.game_thumbnail_height))
+                .clip(RoundedCornerShape(dimensionResource(id = R.dimen.corner_radius_small))),
             contentScale = ContentScale.Crop
         )
 
-        Spacer(modifier = Modifier.padding(start = 12.dp))
+        Spacer(modifier = Modifier.padding(start = dimensionResource(id = R.dimen.padding_small)))
 
         Column(
             modifier = Modifier.weight(1f)
         ) {
             Text(
-                text = game.title ?: "Untitled",
-                fontSize = 18.sp,
+                text = game.title ?: stringResource(id = R.string.fallback_untitled),
+                fontSize = dimensionResource(id = R.dimen.text_size_title).value.sp,
                 fontWeight = FontWeight.Bold
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_small)))
 
             Text(
                 text = game.shortDescription ?: "",
-                fontSize = 13.sp,
+                fontSize = dimensionResource(id = R.dimen.text_size_body).value.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_medium)))
 
             Row(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = "Genre: ${game.genre ?: "N/A"}",
-                    fontSize = 11.sp,
+                    text = stringResource(id = R.string.label_genre, game.genre ?: stringResource(id = R.string.fallback_na)),
+                    fontSize = dimensionResource(id = R.dimen.text_size_caption).value.sp,
                 )
                 Text(
-                    text = "  •  Platform: ${game.platform ?: "N/A"}",
-                    fontSize = 11.sp,
+                    text = stringResource(id = R.string.label_platform, game.platform ?: stringResource(id = R.string.fallback_na)),
+                    fontSize = dimensionResource(id = R.dimen.text_size_caption).value.sp,
                     color = MaterialTheme.colorScheme.secondary
                 )
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_small)))
 
             Text(
-                text = "Developer: ${game.developer ?: "Unknown"}",
-                fontSize = 11.sp,
+                text = stringResource(id = R.string.label_developer, game.developer ?: stringResource(id = R.string.fallback_unknown)),
+                fontSize = dimensionResource(id = R.dimen.text_size_caption).value.sp,
                 color = MaterialTheme.colorScheme.outline
             )
 
-            Spacer(modifier = Modifier.height(2.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_extra_small)))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -193,37 +191,37 @@ fun GameItemCard(game: Game,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Release Date: ${game.releaseDate ?: "N/A"}",
-                    fontSize = 11.sp,
+                    text = stringResource(id = R.string.label_release_date, game.releaseDate ?: stringResource(id = R.string.fallback_na)),
+                    fontSize = dimensionResource(id = R.dimen.text_size_caption).value.sp,
                     color = MaterialTheme.colorScheme.outline
                 )
 
                 IconButton(onClick = onBookmarkClick) {
                     Icon(
                         painter = painterResource(id = R.drawable.outline_award_star_24),
-                        contentDescription = "Favourite Game",
-                        tint = if (isSaved) Color(0xFFFFD700) else MaterialTheme.colorScheme.outline
+                        contentDescription = stringResource(id = R.string.desc_favourite_game),
+                        tint = if (isSaved) colorResource(id = R.color.gold) else MaterialTheme.colorScheme.outline
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(2.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_extra_small)))
 
             Text(
-                text = "Publisher: ${game.publisher ?: "Unknown"}",
-                fontSize = 11.sp,
+                text = stringResource(id = R.string.label_publisher, game.publisher ?: stringResource(id = R.string.fallback_unknown)),
+                fontSize = dimensionResource(id = R.dimen.text_size_caption).value.sp,
                 color = MaterialTheme.colorScheme.outline
             )
 
             if (!game.gameUrl.isNullOrEmptyOrBlank() || !game.profileUrl.isNullOrEmptyOrBlank()) {
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_small)))
 
                 Row(modifier = Modifier.fillMaxWidth()) {
                     if (!game.gameUrl.isNullOrEmptyOrBlank()) {
                         Text(
-                            text = "Game URL",
-                            fontSize = 11.sp,
-                            color = Color.Blue,
+                            text = stringResource(id = R.string.label_game_url),
+                            fontSize = dimensionResource(id = R.dimen.text_size_caption).value.sp,
+                            color = colorResource(id = R.color.blue),
                             textDecoration = TextDecoration.Underline,
                             modifier = Modifier.clickable {
                                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(game.gameUrl))
@@ -234,17 +232,17 @@ fun GameItemCard(game: Game,
 
                     if (!game.gameUrl.isNullOrEmptyOrBlank() && !game.profileUrl.isNullOrBlank()) {
                         Text(
-                            text = "  •  ",
-                            fontSize = 11.sp,
+                            text = stringResource(id = R.string.label_separator),
+                            fontSize = dimensionResource(id = R.dimen.text_size_caption).value.sp,
                             color = MaterialTheme.colorScheme.outline
                         )
                     }
 
                     if (!game.profileUrl.isNullOrEmptyOrBlank()) {
                         Text(
-                            text = "Profile URL",
-                            fontSize = 11.sp,
-                            color = Color.Blue,
+                            text = stringResource(id = R.string.label_profile_url),
+                            fontSize = dimensionResource(id = R.dimen.text_size_caption).value.sp,
+                            color = colorResource(id = R.color.blue),
                             textDecoration = TextDecoration.Underline,
                             modifier = Modifier.clickable {
                                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(game.profileUrl))
@@ -271,8 +269,8 @@ fun GamesPreview() {
                 gameUrl = "",
                 genre = "RPG",
                 platform = "PC",
-                publisher = "CD Projekt",
-                developer = "CD Projekt Red",
+                publisher = "CD Project",
+                developer = "CD Project Red",
                 releaseDate = "2020-12-10",
                 profileUrl = ""
             ),
@@ -280,7 +278,7 @@ fun GamesPreview() {
                 id = "2",
                 title = "Apex Legends",
                 thumbnail = "",
-                shortDescription = "Battle Royale",
+                shortDescription = "Battle Royal",
                 gameUrl = "",
                 genre = "Shooter",
                 platform = "PC",

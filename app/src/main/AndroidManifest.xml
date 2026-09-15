@@ -11,7 +11,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Games">
         <activity
-            android:name=".view.GameActivity"
+            android:name=".ui.GameActivity"
             android:exported="true"
             android:theme="@style/Theme.Games"
             android:windowSoftInputMode="adjustResize">

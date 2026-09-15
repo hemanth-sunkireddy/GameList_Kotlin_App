@@ -1,3 +1,25 @@
 <resources>
     <string name="app_name">games</string>
+    <string name="label_games">Games</string>
+    <string name="desc_game_thumbnail">Game Thumbnail</string>
+    <string name="fallback_untitled">Untitled</string>
+    <string name="label_genre">Genre: %1$s</string>
+    <string name="fallback_na">N/A</string>
+    <string name="label_platform">\u0020\u0020•\u0020\u0020Platform: %1$s</string>
+    <string name="fallback_unknown">Unknown</string>
+    <string name="label_developer">Developer: %1$s</string>
+    <string name="label_release_date">Release Date: %1$s</string>
+    <string name="desc_favourite_game">Favourite Game</string>
+    <string name="label_publisher">Publisher: %1$s</string>
+    <string name="label_game_url">Game URL</string>
+    <string name="label_separator">\u0020\u0020•\u0020\u0020</string>
+    <string name="label_profile_url">Profile URL</string>
+    <string name="toast_games_loaded">Games loaded successfully</string>
+    <string name="error_failed_to_load">Failed to load games</string>
+    <string name="pref_name_games">game_preferences</string>
+    <string name="pref_key_favourite_games">favourite_game_ids</string>
+    <string name="base_url">https://www.mmobomb.com/</string>
+    <string name="api_endpoint_games">api1/games</string>
+    <string name="log_tag_viewmodel">GameViewModelThread</string>
+    <string name="log_tag_repository">GameRepository</string>
 </resources>

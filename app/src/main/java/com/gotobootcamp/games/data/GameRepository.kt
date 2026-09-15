@@ -7,11 +7,11 @@ import com.gotobootcamp.games.model.Game
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class GameRepository() {
+class GameRepository(private val baseUrl: String) {
 
     private val apiService: GameApiService by lazy {
         Retrofit.Builder()
-            .baseUrl("https://www.mmobomb.com/")
+            .baseUrl(baseUrl)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(GameApiService::class.java)
@@ -19,7 +19,6 @@ class GameRepository() {
 
     suspend fun getGames(): List<Game> {
         val gamesList = apiService.getGames()
-        Log.d("GameRepository", Gson().toJson(gamesList))
         return gamesList
     }
 }
